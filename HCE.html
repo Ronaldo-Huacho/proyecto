@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Historia Clínica Electrónica (HCE)</title>
+    <link rel="stylesheet" href="HCE.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Agrega aquí estilos básicos si es necesario */
+        .hidden { display: none; }
+        .form-container { margin: 20px 0; }
+        .action-button { background-color: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; }
+        .action-button:hover { background-color: #0056b3; }
+        .results { margin-top: 20px; }
+        .menu-button { margin: 5px; padding: 10px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gestión de Historia Clínica Electrónica (HCE)</h1>
+        </header>
+        
+        <nav>
+            <button class="menu-button" onclick="showForm('registrarPaciente')"><i class="fas fa-user-plus"></i> Registrar Paciente</button>
+            <button class="menu-button" onclick="showForm('registrarDoctor')"><i class="fas fa-user-md"></i> Registrar Doctor</button>
+            <button class="menu-button" onclick="showForm('registrarAdministrador')"><i class="fas fa-user-shield"></i> Registrar Administrador</button>
+            <button class="menu-button" onclick="showForm('cantidadUsuarios')"><i class="fas fa-list-ul"></i> Mostrar Cantidad de Usuarios</button>
+            <button class="menu-button" onclick="showForm('cantidadTotalUsuarios')"><i class="fas fa-users"></i> Mostrar Cantidad Total de Usuarios</button>
+        </nav>
+        
+        <main id="forms">
+            <section id="registrarPaciente" class="form-container hidden">
+                <h2>Registrar Paciente</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="nombrePaciente">Nombre del Paciente:</label>
+                        <input type="text" id="nombrePaciente" placeholder="Ingrese el nombre del paciente" required>
+                    </div>
+                    <button class="action-button" type="button" onclick="registrarUsuario('pacientes')">Registrar</button>
+                </form>
+            </section>
+            <section id="registrarDoctor" class="form-container hidden">
+                <h2>Registrar Doctor</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="nombreDoctor">Nombre del Doctor:</label>
+                        <input type="text" id="nombreDoctor" placeholder="Ingrese el nombre del doctor" required>
+                    </div>
+                    <button class="action-button" type="button" onclick="registrarUsuario('doctores')">Registrar</button>
+                </form>
+            </section>
+            <section id="registrarAdministrador" class="form-container hidden">
+                <h2>Registrar Administrador de Hospital</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="nombreAdministrador">Nombre del Administrador:</label>
+                        <input type="text" id="nombreAdministrador" placeholder="Ingrese el nombre del administrador" required>
+                    </div>
+                    <button class="action-button" type="button" onclick="registrarUsuario('administradores')">Registrar</button>
+                </form>
+            </section>
+            <section id="cantidadUsuarios" class="form-container hidden">
+                <h2>Mostrar Cantidad de Usuarios</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="tipoUsuario">Tipo de Usuario:</label>
+                        <input type="text" id="tipoUsuario" placeholder="Ingrese el tipo de usuario (pacientes, doctores, administradores)" required>
+                    </div>
+                    <button class="action-button" type="button" onclick="mostrarCantidadUsuarios()">Mostrar Cantidad</button>
+                </form>
+                <div class="results">
+                    <p id="resultadoCantidad"></p>
+                </div>
+            </section>
+            <section id="cantidadTotalUsuarios" class="form-container hidden">
+                <h2>Mostrar Cantidad Total de Usuarios</h2>
+                <button class="action-button" type="button" onclick="mostrarCantidadTotalUsuarios()">Mostrar Cantidad Total</button>
+                <div class="results">
+                    <p id="resultadoTotal"></p>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        // Definición del objeto que almacena los usuarios
+        const usuarios = {
+            pacientes: [],
+            doctores: [],
+            administradores: []
+        };
+
+        // Función para mostrar los formularios y secciones
+        function showForm(formId) {
+            document.querySelectorAll('#forms > .form-container').forEach(div => div.classList.add('hidden'));
+            document.getElementById(formId).classList.remove('hidden');
+        }
+
+        // Función para registrar un usuario en el sistema
+        function registrarUsuario(tipo) {
+            const nombreCampo = tipo === 'pacientes' ? 'nombrePaciente' : 
+                                tipo === 'doctores' ? 'nombreDoctor' : 
+                                'nombreAdministrador';
+            const nombre = document.getElementById(nombreCampo).value;
+            
+            if (nombre) {
+                usuarios[tipo].push(nombre);
+                alert(`Usuario registrado como ${tipo}`);
+                document.getElementById(nombreCampo).value = ''; // Limpiar el campo
+
+                // Actualizar conteo si la vista está activa
+                if (!document.getElementById('cantidadUsuarios').classList.contains('hidden')) {
+                    mostrarCantidadUsuarios();
+                }
+                if (!document.getElementById('cantidadTotalUsuarios').classList.contains('hidden')) {
+                    mostrarCantidadTotalUsuarios();
+                }
+            } else {
+                alert('Ingrese un nombre válido');
+            }
+        }
+
+        // Función para mostrar la cantidad de usuarios de un tipo específico
+        function mostrarCantidadUsuarios() {
+            const tipo = document.getElementById('tipoUsuario').value;
+            if (usuarios[tipo] !== undefined) {
+                document.getElementById('resultadoCantidad').textContent = `Cantidad de ${tipo}: ${usuarios[tipo].length}`;
+            } else {
+                document.getElementById('resultadoCantidad').textContent = 'Tipo de usuario no válido';
+            }
+        }
+
+        // Función para mostrar la cantidad total de usuarios
+        function mostrarCantidadTotalUsuarios() {
+            let total = 0;
+            let resultados = '';
+            for (const tipo in usuarios) {
+                if (usuarios[tipo].length > 0) {
+                    resultados += `<strong>${capitalize(tipo)}:</strong><br>`;
+                    resultados += usuarios[tipo].map(nombre => `- ${nombre}`).join('<br>') + '<br><br>';
+                }
+                total += usuarios[tipo].length;
+            }
+            document.getElementById('resultadoTotal').innerHTML = `Cantidad total de usuarios: ${total}<br><br>${resultados}`;
+        }
+
+        // Función para capitalizar la primera letra de una cadena
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>
